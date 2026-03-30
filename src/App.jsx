@@ -3,8 +3,14 @@ import './App.css'
 
 const STORAGE_KEY = 'poc-api-base-url'
 
-function apiUrl(url) {
+const TEXT_PATH = '/api/text'
+
+function normalizeBaseUrl(url) {
   return url.trim().replace(/\/+$/, '')
+}
+
+function textResourceUrl(baseUrl) {
+  return `${normalizeBaseUrl(baseUrl)}${TEXT_PATH}`
 }
 
 async function readResponseBody(res) {
@@ -55,7 +61,7 @@ export default function App() {
 
   const handleGet = () => {
     run('GET', async () => {
-      const url = apiUrl(baseUrl)
+      const url = textResourceUrl(baseUrl)
       const res = await fetch(url)
       const body = await readResponseBody(res)
       if (!res.ok) {
@@ -68,7 +74,7 @@ export default function App() {
 
   const handlePut = () => {
     run('PUT (append)', async () => {
-      const url = apiUrl(baseUrl)
+      const url = textResourceUrl(baseUrl)
       const res = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
@@ -85,7 +91,7 @@ export default function App() {
 
   const handlePost = () => {
     run('POST (replace)', async () => {
-      const url = apiUrl(baseUrl)
+      const url = textResourceUrl(baseUrl)
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
@@ -105,7 +111,7 @@ export default function App() {
       <h1 className="poc-title">Text API PoC</h1>
 
       <label className="poc-label">
-        REST API URL (root <code>/</code>)
+        REST API base URL
         <input
           className="poc-input"
           type="url"
@@ -117,8 +123,8 @@ export default function App() {
         />
       </label>
       <p className="poc-hint">
-        GET / PUT / POST target this URL (server root only, no path). Optional default:{' '}
-        <code>VITE_API_BASE_URL</code>.
+        GET / PUT / POST use <code>{textResourceUrl(baseUrl || '…')}</code> (<code>{TEXT_PATH}</code>{' '}
+        on the server). Optional default: <code>VITE_API_BASE_URL</code>.
       </p>
 
       <textarea
